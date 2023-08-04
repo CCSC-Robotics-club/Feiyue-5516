@@ -108,6 +108,12 @@ public class MAXSwerveModule {
     m_chassisAngularOffset = chassisAngularOffset;
     m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
     m_drivingEncoder.setPosition(0);
+    m_drivingSparkMax.setIdleMode(CANSparkMax.IdleMode.kBrake);
+  }
+
+  public void lockModule() {
+    m_drivingSparkMax.set(0);
+    m_drivingSparkMax.setIdleMode(CANSparkMax.IdleMode.kBrake);
   }
 
   /**

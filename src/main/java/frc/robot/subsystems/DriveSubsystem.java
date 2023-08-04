@@ -16,14 +16,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
-import com.ctre.phoenix.sensors.WPI_PigeonIMU;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import java.util.Map;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -48,8 +43,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  // private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(22);
-  private final ZeroIMU m_gyro = new ZeroIMU();
+  private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(20);
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -125,14 +119,16 @@ public class DriveSubsystem extends SubsystemBase {
    * @param xSpeed        Speed of the robot in the x direction (forward).
    * @param ySpeed        Speed of the robot in the y direction (sideways).
    * @param rot           Angular rate of the robot.
-   * @param fieldRelative Whether the provided x and y speeds are relative to the
-   *                      field.
+   * @param fieldOrientated whether to use the direction of the field as zero direction
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldOrientated, boolean rateLimit) {
     xSpeed *= speedLimit;
     ySpeed *= speedLimit;
     rot *= speedLimit * rotationSensitivity;
+
+    xSpeed = Math.copySign(xSpeed * xSpeed, xSpeed);
+    ySpeed = Math.copySign(ySpeed * ySpeed, ySpeed);
     
     double xSpeedCommanded;
     double ySpeedCommanded;
@@ -191,9 +187,10 @@ public class DriveSubsystem extends SubsystemBase {
     double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(m_gyro.getAngle()))
-            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+            fieldOrientated
+                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(m_gyro.getAngle()))
+                    : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
@@ -259,7 +256,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
+  public void restHeading() {
     m_gyro.reset();
   }
 
@@ -280,21 +277,4 @@ public class DriveSubsystem extends SubsystemBase {
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
-}
-
-
-class ZeroIMU {
-  public double getAngle() {
-    return 0;
-  }
-
-  public Rotation2d getRotation2d() {
-    return new Rotation2d();
-  }
-
-  public double getRate() {
-    return 0;
-  }
-
-  public void reset() {}
 }

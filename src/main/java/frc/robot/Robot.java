@@ -63,9 +63,6 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     test.testPeriodic();
-
-    SmartDashboard.putNumber("program delay", (int)(1000*timer.get()));
-    timer.reset();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -129,6 +126,12 @@ public class Robot extends TimedRobot {
     if (controller.getAButton())
       m_robotContainer.setChassisPowerLimitLow();
     shooter.periodic();
+
+    if (controller.getStartButton())
+      m_robotContainer.resetRobotRotation();
+
+    SmartDashboard.putNumber("program delay", (int)(1000*timer.get()));
+    timer.reset();
   }
 
   @Override
