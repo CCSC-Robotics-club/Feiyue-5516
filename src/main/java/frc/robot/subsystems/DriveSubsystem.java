@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,10 +15,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.Map;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -41,7 +47,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+  private final WPI_PigeonIMU m_gyro = new WPI_PigeonIMU(100); // TODO find Can id
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -51,6 +57,8 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
+
+  private SwerveDrivePoseEstimator m_poseEst;
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -65,6 +73,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    m_poseEst = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_gyro.getRotation2d(), getModPositions(), new Pose2d());
   }
 
   @Override
@@ -209,6 +218,26 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearLeft.setDesiredState(desiredStates[2]);
     m_rearRight.setDesiredState(desiredStates[3]);
   }
+
+  public SwerveModulePosition[] getModPositions(){
+    SwerveModulePosition[] modPoses = new SwerveModulePosition[4];
+
+    modPoses[0] = m_frontLeft.getPosition();
+    modPoses[1] = m_frontRight.getPosition();
+    modPoses[2] = m_rearLeft.getPosition();
+    modPoses[3] = m_rearRight.getPosition();
+
+    return modPoses;
+  }
+
+//  public SwerveAutoBuilder getAutoBuilder(Map<String, Command> eventMap) {
+//    return new SwerveAutoBuilder(
+//            this::getPose,
+//            this::resetOdometry,
+//            DriveConstants.kDriveKinematics,
+//            
+//    )
+//  }
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
