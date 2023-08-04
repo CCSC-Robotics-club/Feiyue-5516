@@ -74,6 +74,14 @@ public class RobotContainer {
             m_robotDrive));
   }
 
+  public void setChassisPowerLimitLow() {
+    m_robotDrive.setSpeedLimit(DriveConstants.chassisSpeedLimitLow);
+  }
+
+  public void setChassisPowerLimitHigh() {
+    m_robotDrive.setSpeedLimit(DriveConstants.chassisSpeedLimitHigh);
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

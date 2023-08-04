@@ -63,6 +63,9 @@ public final class Constants {
     public static final int kRearRightTurningCanId = 28;
 
     public static final boolean kGyroReversed = false;
+
+    public static final double chassisSpeedLimitHigh = 0.8;
+    public static final double chassisSpeedLimitLow = 0.6;
   }
 
   public static final class ModuleConstants {
@@ -138,5 +141,18 @@ public final class Constants {
 
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
+  }
+
+  public static final class ShooterModuleConstants {
+    public static final int shooterPort = 13;
+    public static final int kickerPort = 7;
+
+    public static final double kickerPower = 0.65;
+    public static final double shooterStandByPower = 0.4;
+    public static final double shooterShootPower = 0.8;
+  }
+
+  public static final class ControlConstants {
+    public static final double triggerActivateThreshold = 0.3;
   }
 }

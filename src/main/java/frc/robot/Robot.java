@@ -8,14 +8,11 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.MAXSwerveModule;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,6 +24,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+  private Test test = new Test();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -54,6 +52,29 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    XboxController controller = new XboxController(0);
+
+    ShooterSubsystem shooter = new ShooterSubsystem();
+
+    if (controller.getXButton())
+      shooter.toggleDisable();
+
+    if (controller.getLeftBumper())
+      shooter.setShooterActivated();
+    else
+      shooter.setShooterStandBy();
+
+    if (controller.getRightTriggerAxis() > 0.3)
+      shooter.setKickerActivated();
+    else
+      shooter.setKickerStandBy();
+
+    if (controller.getYButton())
+      m_robotContainer.setChassisPowerLimitHigh();
+    if (controller.getAButton())
+      m_robotContainer.setChassisPowerLimitLow();
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -111,20 +132,28 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-
+    test.testPeriodic();
   }
 }
 
 class Test {
-  TalonSRX testMotor = new TalonSRX(0);
-  XboxController testController = new XboxController(1);
-  WPI_PigeonIMU testIMU = new WPI_PigeonIMU(22);
+  TalonSRX testShooter = new TalonSRX(13);
+  TalonSRX testKicker = new TalonSRX(7);
+  XboxController testController = new XboxController(0);
   public void testPeriodic() {
-    this.testMotor.setNeutralMode(NeutralMode.Coast); // make it move freely at zero power
+    this.testShooter.setNeutralMode(NeutralMode.Coast); // make it move freely at zero power
+    this.testKicker.setNeutralMode(NeutralMode.Coast);
+
     if (testController.getAButton())
-      this.testMotor.set(TalonSRXControlMode.PercentOutput, 0.1);
+      this.testShooter.set(TalonSRXControlMode.PercentOutput, 0.8);
     else
-      this.testMotor.set(TalonSRXControlMode.PercentOutput, 0);
-    System.out.println(testIMU.getAngle());
+      this.testShooter.set(TalonSRXControlMode.PercentOutput, 0);
+
+    if (testController.getBButton())
+      this.testKicker.set(TalonSRXControlMode.PercentOutput, 0.6);
+    else
+      this.testKicker.set(TalonSRXControlMode.PercentOutput, 0);
+
+    System.out.println("shooter speed: " + testShooter.getSelectedSensorVelocity());
   }
 }

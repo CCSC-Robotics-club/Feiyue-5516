@@ -1,38 +1,77 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
+/**
+ * the class that controls the shooter
+ * @Author Sam
+ * @Version 0.0
+ */
 public class ShooterSubsystem extends SubsystemBase {
+    private TalonSRX shooter;
+    private TalonSRX kicker;
+    private Timer toggleDisableTimer = new Timer();
 
-    // With eager singleton initialization, any static variables/fields used in the 
-    // constructor must appear before the "INSTANCE" variable so that they are initialized 
-    // before the constructor is called when the "INSTANCE" variable initializes.
+    private boolean disabled;
+    private boolean shooterActivated;
+    private boolean kickerActivated;
+    /** creates the shooter subsystem */
+    public ShooterSubsystem() {
+        shooter = new TalonSRX(Constants.ShooterModuleConstants.shooterPort);
+        kicker = new TalonSRX(Constants.ShooterModuleConstants.kickerPort);
 
-    /**
-     * The Singleton instance of this ShooterSubsystem. Code should use
-     * the {@link #getInstance()} method to get the single instance (rather
-     * than trying to construct an instance of this class.)
-     */
-    private final static ShooterSubsystem INSTANCE = new ShooterSubsystem();
-
-    /**
-     * Returns the Singleton instance of this ShooterSubsystem. This static method
-     * should be used, rather than the constructor, to get the single instance
-     * of this class. For example: {@code ShooterSubsystem.getInstance();}
-     */
-    @SuppressWarnings("WeakerAccess")
-    public static ShooterSubsystem getInstance() {
-        return INSTANCE;
+        shooter.setNeutralMode(NeutralMode.Coast);
+        kicker.setNeutralMode(NeutralMode.Brake);
+        this.disabled = false;
+        this.shooterActivated = false;
+        this.toggleDisableTimer.start();
     }
 
-    /**
-     * Creates a new instance of this ShooterSubsystem. This constructor
-     * is private since this class is a Singleton. Code should use
-     * the {@link #getInstance()} method to get the singleton instance.
-     */
-    private ShooterSubsystem() {
+    @Override
+    public void periodic() {
+        if (disabled) {
+            this.shooter.set(TalonSRXControlMode.PercentOutput, 0);
+            this.kicker.set(TalonSRXControlMode.PercentOutput, 0);
+        }
+        if (shooterActivated)
+            shooter.set(ControlMode.PercentOutput, Constants.ShooterModuleConstants.shooterShootPower);
+        else
+            shooter.set(TalonSRXControlMode.PercentOutput, Constants.ShooterModuleConstants.shooterStandByPower);
+        if (kickerActivated)
+            kicker.set(TalonSRXControlMode.PercentOutput, Constants.ShooterModuleConstants.kickerPower);
+        else
+            kicker.set(TalonSRXControlMode.PercentOutput, 0);
+    }
 
+    public void toggleDisable() {
+        if (this.toggleDisableTimer.get() < 0.3) // avoid multi-touching
+            return;
+        this.disabled = !disabled;
+        this.toggleDisableTimer.reset();
+    }
+
+    public void setShooterActivated() {
+        this.shooterActivated = true;
+    }
+
+    public void setShooterStandBy() {
+        this.shooterActivated = false;
+    }
+
+    public void setKickerActivated() {
+        if (shooterActivated)
+            this.kickerActivated = true;
+    }
+
+    public void setKickerStandBy() {
+        this.kickerActivated = false;
     }
 }
 

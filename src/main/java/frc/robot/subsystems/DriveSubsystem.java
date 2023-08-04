@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -47,7 +48,8 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final WPI_PigeonIMU m_gyro = new WPI_PigeonIMU(100); // TODO find Can id
+  // private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(22);
+  private final ZeroIMU m_gyro = new ZeroIMU();
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -57,6 +59,8 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
+  private double speedLimit = 1;
+  private double rotationSensitivity = 0.8;
 
   private SwerveDrivePoseEstimator m_poseEst;
 
@@ -126,6 +130,9 @@ public class DriveSubsystem extends SubsystemBase {
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
+    xSpeed *= speedLimit;
+    ySpeed *= speedLimit;
+    rot *= speedLimit * rotationSensitivity;
     
     double xSpeedCommanded;
     double ySpeedCommanded;
@@ -193,6 +200,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
     m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
+  public void setSpeedLimit(double speedLimit) {
+    this.speedLimit = speedLimit;
   }
 
   /**
@@ -269,4 +280,21 @@ public class DriveSubsystem extends SubsystemBase {
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
+}
+
+
+class ZeroIMU {
+  public double getAngle() {
+    return 0;
+  }
+
+  public Rotation2d getRotation2d() {
+    return new Rotation2d();
+  }
+
+  public double getRate() {
+    return 0;
+  }
+
+  public void reset() {}
 }
