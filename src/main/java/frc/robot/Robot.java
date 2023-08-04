@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -94,7 +98,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+  }
 
   @Override
   public void testInit() {
@@ -104,5 +110,21 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+
+  }
+}
+
+class Test {
+  TalonSRX testMotor = new TalonSRX(0);
+  XboxController testController = new XboxController(1);
+  WPI_PigeonIMU testIMU = new WPI_PigeonIMU(22);
+  public void testPeriodic() {
+    this.testMotor.setNeutralMode(NeutralMode.Coast); // make it move freely at zero power
+    if (testController.getAButton())
+      this.testMotor.set(TalonSRXControlMode.PercentOutput, 0.1);
+    else
+      this.testMotor.set(TalonSRXControlMode.PercentOutput, 0);
+    System.out.println(testIMU.getAngle());
+  }
 }
