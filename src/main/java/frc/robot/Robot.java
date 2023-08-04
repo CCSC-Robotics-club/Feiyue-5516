@@ -9,10 +9,14 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.ShooterSubsystem;
+
+import java.sql.Time;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,6 +30,10 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Test test = new Test();
 
+  ShooterSubsystem shooter = new ShooterSubsystem();
+  XboxController controller = new XboxController(0);
+  Timer timer = new Timer();
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -36,6 +44,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
 
     m_robotContainer = new RobotContainer();
+    timer.start();
   }
 
   /**
@@ -52,10 +61,6 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
-    XboxController controller = new XboxController(0);
-
-    ShooterSubsystem shooter = new ShooterSubsystem();
 
     if (controller.getXButton())
       shooter.toggleDisable();
@@ -74,7 +79,10 @@ public class Robot extends TimedRobot {
       m_robotContainer.setChassisPowerLimitHigh();
     if (controller.getAButton())
       m_robotContainer.setChassisPowerLimitLow();
+    shooter.periodic();
 
+    SmartDashboard.putNumber("program delay", (int)(1000*timer.get()));
+    timer.reset();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
