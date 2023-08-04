@@ -64,8 +64,8 @@ public final class Constants {
 
     public static final boolean kGyroReversed = false;
 
-    public static final double chassisSpeedLimitHigh = 0.8;
-    public static final double chassisSpeedLimitLow = 0.6;
+    public static final double chassisSpeedLimitHigh = 0.6;
+    public static final double chassisSpeedLimitLow = 0.4;
   }
 
   public static final class ModuleConstants {
