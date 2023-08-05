@@ -65,7 +65,7 @@ public final class Constants {
     public static final boolean kGyroReversed = false;
 
     public static final double chassisSpeedLimitHigh = 0.6;
-    public static final double chassisSpeedLimitLow = 0.4;
+    public static final double chassisSpeedLimitLow = 0.35;
 
     public static final double gyroAngleCorrectionFactor = -1;
   }
@@ -156,6 +156,5 @@ public final class Constants {
 
   public static final class ControlConstants {
     public static final double triggerActivateThreshold = 0.3;
-    public static final boolean fieldOrientated = false; // TODO make this on smart-dashboard
   }
 }

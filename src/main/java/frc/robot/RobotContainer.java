@@ -70,7 +70,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     new JoystickButton(m_driverController, Button.kR1.value)
         .whileTrue(new RunCommand(
-            () -> m_robotDrive.setWheelsToXFormation(),
+            () -> m_robotDrive.lockRobot(),
             m_robotDrive));
   }
 
@@ -84,6 +84,14 @@ public class RobotContainer {
 
   public void resetRobotRotation() {
     m_robotDrive.restHeading();
+  }
+
+  public void lockChassis() {
+    m_robotDrive.lockRobot();
+  }
+
+  public void unlockChassis() {
+    m_robotDrive.unlockRobot();
   }
 
   /**

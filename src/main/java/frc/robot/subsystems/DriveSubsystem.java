@@ -50,12 +50,13 @@ public class DriveSubsystem extends SubsystemBase {
   private double m_currentRotation = 0.0;
   private double m_currentTranslationDir = 0.0;
   private double m_currentTranslationMag = 0.0;
+  private boolean locked;
 
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
   private double speedLimit = 1;
-  private double rotationSensitivity = 0.8;
+  private final double rotationSensitivity = 0.8;
 
   private SendableChooser<Boolean> robotFieldOrientationChooser;
 
@@ -79,6 +80,8 @@ public class DriveSubsystem extends SubsystemBase {
     robotFieldOrientationChooser.setDefaultOption("FIELD_ORIENTATED", true);
     robotFieldOrientationChooser.addOption("ROBOT_ORIENTATED", false);
     SmartDashboard.putData("orientation mode", robotFieldOrientationChooser);
+
+    this.locked = false;
   }
 
   @Override
@@ -135,6 +138,9 @@ public class DriveSubsystem extends SubsystemBase {
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldOrientated, boolean rateLimit) {
+    if (locked)
+      return;
+
     xSpeed *= speedLimit;
     ySpeed *= speedLimit;
     rot *= speedLimit * rotationSensitivity;
@@ -218,11 +224,16 @@ public class DriveSubsystem extends SubsystemBase {
   /**
    * Sets the wheels into an X formation to prevent movement.
    */
-  public void setWheelsToXFormation() {
+  public void lockRobot() {
     m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
     m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
     m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    this.locked = true;
+  }
+
+  public void unlockRobot() {
+    this.locked = false;
   }
 
   /**
