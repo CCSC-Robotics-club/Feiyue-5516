@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,7 +44,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(20);
+  private final WPI_Pigeon2 m_gyro = new MyPigeonsIMU(20);
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -276,5 +277,17 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+}
+
+class MyPigeonsIMU extends WPI_Pigeon2 {
+
+  public MyPigeonsIMU(int deviceNumber) {
+    super(deviceNumber);
+  }
+
+  @Override
+  public double getAngle() {
+    return super.getAngle() * DriveConstants.gyroAngleCorrectionFactor;
   }
 }

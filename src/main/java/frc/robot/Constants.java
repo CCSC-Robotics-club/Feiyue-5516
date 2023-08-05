@@ -66,6 +66,8 @@ public final class Constants {
 
     public static final double chassisSpeedLimitHigh = 0.6;
     public static final double chassisSpeedLimitLow = 0.4;
+
+    public static final double gyroAngleCorrectionFactor = -1;
   }
 
   public static final class ModuleConstants {
