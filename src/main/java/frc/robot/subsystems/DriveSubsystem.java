@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
@@ -58,6 +59,8 @@ public class DriveSubsystem extends SubsystemBase {
   private double speedLimit = 1;
   private final double rotationSensitivity = 0.8;
 
+  private final Timer delay;
+
   private SendableChooser<Boolean> robotFieldOrientationChooser;
 
   private SwerveDrivePoseEstimator m_poseEst;
@@ -82,6 +85,8 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("orientation mode", robotFieldOrientationChooser);
 
     this.locked = false;
+    this.delay = new Timer();
+    this.delay.start();
   }
 
   @Override
@@ -218,6 +223,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
     m_rearRight.setDesiredState(swerveModuleStates[3]);
+
+    SmartDashboard.putNumber("drive delay", delay.get());
+    System.out.println("drive delay:" + delay.get() * 1000);
+    delay.reset();
   }
 
   public void setSpeedLimit(double speedLimit) {

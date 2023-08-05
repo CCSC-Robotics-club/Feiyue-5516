@@ -105,42 +105,53 @@ public class RobotContainer {
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(DriveConstants.kDriveKinematics);
 
-    List<Translation2d> points = new ArrayList<>();
-    points.add(new Translation2d(0.3, -0.3));
-    points.add(new Translation2d(5, -0.3));
-    points.add(new Translation2d(5, 0));
-    points.add(new Translation2d(5, -2));
-    // An example trajectory to follow. All units in meters.
-    Trajectory redAllianceTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        points,
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(5, -2, new Rotation2d(0)),
-        config); // TODO use this to place gear
+//    List<Translation2d> points = new ArrayList<>();
+//    points.add(new Translation2d(0.3, -0.3));
+//    points.add(new Translation2d(5, -0.3));
+//    points.add(new Translation2d(5, 0));
+//    points.add(new Translation2d(5, -2));
+//    // An example trajectory to follow. All units in meters.
+//    Trajectory redAllianceTrajectory = TrajectoryGenerator.generateTrajectory(
+//        // Start at the origin facing the +X direction
+//        new Pose2d(0, 0, new Rotation2d(0)),
+//        // Pass through these two interior waypoints, making an 's' curve path
+//        points,
+//        // End 3 meters straight ahead of where we started, facing forward
+//        new Pose2d(5, -2, new Rotation2d(0)),
+//        config); // TODO use this to place gear
+//
+//    List<Translation2d> points2 = new ArrayList<>();
+//    points.add(new Translation2d(-0.3, 0.3));
+//    points.add(new Translation2d(-5, 0.3));
+//    points.add(new Translation2d(-5, 0));
+//    points.add(new Translation2d(-5, 2));
+//    // An example trajectory to follow. All units in meters.
+//    Trajectory blueAllianceTrajectory = TrajectoryGenerator.generateTrajectory(
+//            // Start at the origin facing the +X direction
+//            new Pose2d(0, 0, new Rotation2d(0)),
+//            // Pass through these two interior waypoints, making an 's' curve path
+//            points2,
+//            // End 3 meters straight ahead of where we started, facing forward
+//            new Pose2d(-5, 2, new Rotation2d(0)),
+//            config);
 
-    List<Translation2d> points2 = new ArrayList<>();
-    points.add(new Translation2d(-0.3, 0.3));
-    points.add(new Translation2d(-5, 0.3));
-    points.add(new Translation2d(-5, 0));
-    points.add(new Translation2d(-5, 2));
-    // An example trajectory to follow. All units in meters.
-    Trajectory blueAllianceTrajectory = TrajectoryGenerator.generateTrajectory(
-            // Start at the origin facing the +X direction
-            new Pose2d(0, 0, new Rotation2d(0)),
-            // Pass through these two interior waypoints, making an 's' curve path
-            points2,
-            // End 3 meters straight ahead of where we started, facing forward
-            new Pose2d(-5, 2, new Rotation2d(0)),
-            config); // TODO use this to place gear
+      Trajectory goForwardTrajectory = TrajectoryGenerator.generateTrajectory(
+              // Start at the origin facing the +X direction
+              new Pose2d(0, 0, new Rotation2d(0)),
+              // Pass through these two interior waypoints, making an 's' curve path
+              // List.of(new Translation2d(5.0, 0.0)),
+              new ArrayList<Translation2d>(),
+              // End 3 meters straight ahead of where we started, facing forward
+              new Pose2d(4, 0, new Rotation2d(0)),
+              config); // TODO use this to place gear
+
 
     var thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        redAllianceTrajectory,
+        goForwardTrajectory,
         m_robotDrive::getPose, // Functional interface to feed supplier
         DriveConstants.kDriveKinematics,
 
@@ -152,7 +163,7 @@ public class RobotContainer {
         m_robotDrive);
 
     // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(redAllianceTrajectory.getInitialPose());
+    m_robotDrive.resetOdometry(goForwardTrajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false));

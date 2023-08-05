@@ -62,6 +62,10 @@ public class ShooterSubsystem extends SubsystemBase {
         this.toggleDisableTimer.reset();
     }
 
+    public void disable() {
+        this.disabled = true;
+    }
+
     public void setShooterActivated() {
         this.shooterActivated = true;
     }
