@@ -124,7 +124,7 @@ public class Robot extends TimedRobot {
     if (controller.getStartButton())
       m_robotContainer.resetRobotRotation();
 
-    if (controller.getLeftBumper() && controller.getRightBumper())
+    if (controller.getLeftStickButton())
       m_robotContainer.lockChassis();
     else
       m_robotContainer.unlockChassis();
