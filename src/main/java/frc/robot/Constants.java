@@ -156,6 +156,6 @@ public final class Constants {
 
   public static final class ControlConstants {
     public static final double triggerActivateThreshold = 0.3;
-    public static final boolean fieldOrientated = true;
+    public static final boolean fieldOrientated = false; // TODO make this on smart-dashboard
   }
 }

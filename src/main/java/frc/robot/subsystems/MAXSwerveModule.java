@@ -111,11 +111,6 @@ public class MAXSwerveModule {
     m_drivingSparkMax.setIdleMode(CANSparkMax.IdleMode.kBrake);
   }
 
-  public void lockModule() {
-    m_drivingSparkMax.set(0);
-    m_drivingSparkMax.setIdleMode(CANSparkMax.IdleMode.kBrake);
-  }
-
   /**
    * Returns the current state of the module.
    *

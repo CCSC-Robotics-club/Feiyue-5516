@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,7 +15,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,6 +57,8 @@ public class DriveSubsystem extends SubsystemBase {
   private double speedLimit = 1;
   private double rotationSensitivity = 0.8;
 
+  private SendableChooser<Boolean> robotFieldOrientationChooser;
+
   private SwerveDrivePoseEstimator m_poseEst;
 
   // Odometry class for tracking robot pose
@@ -73,6 +75,10 @@ public class DriveSubsystem extends SubsystemBase {
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     m_poseEst = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_gyro.getRotation2d(), getModPositions(), new Pose2d());
+    robotFieldOrientationChooser = new SendableChooser<>();
+    robotFieldOrientationChooser.setDefaultOption("FIELD_ORIENTATED", true);
+    robotFieldOrientationChooser.addOption("ROBOT_ORIENTATED", false);
+    SmartDashboard.putData("orientation mode", robotFieldOrientationChooser);
   }
 
   @Override
@@ -114,13 +120,18 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
+  public void drive(double xSpeed, double ySpeed, double rot, boolean rateLimit) {
+    boolean fieldOrientated = robotFieldOrientationChooser.getSelected();
+    drive(xSpeed, ySpeed, rot, fieldOrientated, rateLimit);
+  }
+
   /**
    * Method to drive the robot using joystick info.
    *
    * @param xSpeed        Speed of the robot in the x direction (forward).
    * @param ySpeed        Speed of the robot in the y direction (sideways).
    * @param rot           Angular rate of the robot.
-   * @param fieldOrientated whether to use the direction of the field as zero direction
+   * @param fieldOrientated whether to orientate according to the field
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldOrientated, boolean rateLimit) {
