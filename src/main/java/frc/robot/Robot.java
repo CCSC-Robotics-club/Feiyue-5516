@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -40,6 +42,15 @@ public class Robot extends TimedRobot {
 
     m_robotContainer = new RobotContainer();
     timer.start();
+
+    UsbCamera camera1 = CameraServer.startAutomaticCapture();
+    UsbCamera camera2 = CameraServer.startAutomaticCapture(1);
+
+    camera1.setResolution(128, 96);
+    camera2.setResolution(64, 48);
+    camera1.setFPS(24);
+    camera2.setFPS(24);
+    // camera2.setConfigJson("{ \"properties\": [{ \"name\": \"vertical_flip\", \"value\": \"true\" }] }");
   }
 
   /**
@@ -57,6 +68,9 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     test.testPeriodic();
+
+    if (controller.getStartButton())
+      m_robotContainer.resetRobotPose();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -120,9 +134,6 @@ public class Robot extends TimedRobot {
     if (controller.getAButton())
       m_robotContainer.setChassisPowerLimitLow();
     shooter.periodic();
-
-    if (controller.getStartButton())
-      m_robotContainer.resetRobotRotation();
 
     if (controller.getLeftTriggerAxis() > Constants.ControlConstants.triggerActivateThreshold)
       m_robotContainer.lockChassis();
